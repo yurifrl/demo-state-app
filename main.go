@@ -30,7 +30,7 @@ func main() {
 	if runtime.GOOS == "darwin" {
 		addr = "localhost"
 	}
-	http.ListenAndServe(fmt.Sprintf("%s:8080"), nil)
+	http.ListenAndServe(fmt.Sprintf("%s:8080", addr), nil)
 }
 
 // "handler" is our handler function. It has to follow the function signature of a ResponseWriter and Request type
