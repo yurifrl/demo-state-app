@@ -16,6 +16,11 @@ jobs:
         uses: actions/checkout@v2
         with:
           fetch-depth: 0
+      - name: Extract metadata (tags, labels) for Docker
+        id: meta
+        uses: docker/metadata-action@v1
+        with:
+          images: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
       - name: Set up QEMU
         uses: docker/setup-qemu-action@v1
         with:
@@ -35,7 +40,4 @@ jobs:
           context: .
           platforms: linux/amd64,linux/arm64
           push: true
-          tags: |
-            ${{ env.REGISTRY_IMAGE }}:latest
-            ${{ env.REGISTRY_IMAGE }}:main
-            ${{ env.REGISTRY_IMAGE }}:${{ steps.prep.outputs.version }}
+          tags: ${{ steps.meta.outputs.tags }}
