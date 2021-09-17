@@ -49,4 +49,4 @@ jobs:
         with:
           push: true
           platforms: linux/amd64,linux/arm64
-          tags: namiops/go_multiarch:latest
+          tags: yurifrl/demo-state-app:latest
