@@ -10,6 +10,7 @@ import (
 	"bytes"
 	"fmt"
 	"os"
+	"runtime"
 	"strconv"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
@@ -25,14 +26,22 @@ func main() {
 	// After defining our server, we finally "listen and serve" on port 8080
 	// The second argument is the handler, which we will come to later on, but for now it is left as nil,
 	// and the handler defined above (in "HandleFunc") is used
-	http.ListenAndServe(":8080", nil)
+	addr := "127.0.0.0"
+	if runtime.GOOS == "darwin" {
+		addr = "localhost"
+	}
+	http.ListenAndServe(fmt.Sprintf("%s:8080"), nil)
 }
 
 // "handler" is our handler function. It has to follow the function signature of a ResponseWriter and Request type
 // as the arguments.
 func handler(w http.ResponseWriter, r *http.Request) {
-	// For this case, we will always pipe "Hello World" into the response writer
-	entry := readAndAppend("text.log")
+	filePath := os.Getenv("FILE_PATH")
+	if len(filePath) == 0 {
+		filePath = "/tmp/test.txt"
+	}
+
+	entry := readAndAppend(filePath)
 	fmt.Fprintf(w, "Hello World! => "+entry)
 }
 
