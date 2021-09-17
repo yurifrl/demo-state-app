@@ -16,6 +16,7 @@ RUN env CGO_ENABLED=${CGO_ENABLED} GOARCH=${GOARCH} GOARM=${GOARM}  go build -o 
 # Use distroless as minimal base image to package the app binary
 # Refer to https://github.com/GoogleContainerTools/distroless for more details
 FROM scratch
+LABEL org.opencontainers.image.source https://github.com/yurifrl/demo-state-app
 WORKDIR /
 COPY --from=builder /workspace/app .
 
