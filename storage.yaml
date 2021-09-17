@@ -1,0 +1,81 @@
+---
+kind: Deployment
+apiVersion: apps/v1
+metadata:
+  namespace: default
+  name: storage
+  labels:
+    app: storage
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: storage
+  template:
+    metadata:
+      labels:
+        app: storage
+    spec:
+      containers:
+        - name: app
+          image: ghcr.io/yurifrl/demo-state-app:main
+          ports:
+            - containerPort: 8080
+          volumeMounts:
+            - name: data
+              mountPath: /data
+          env:
+            - name: FILE_PATH
+              value: /data/data.log
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: sample-storage-pvc
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: storage
+  namespace: default
+spec:
+  ports:
+    - protocol: TCP
+      name: web
+      port: 80
+  selector:
+    app: storage
+---
+apiVersion: traefik.containo.us/v1alpha1
+kind: IngressRoute
+metadata:
+  name: storage
+  namespace: default
+spec:
+  entryPoints:
+    - web
+  routes:
+    - match: HostRegexp(`example.{domain}.{ext}`)
+      kind: Rule
+      services:
+        - name: storage
+          port: 8080
+---
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: sample-storage-pvc
+  namespace: default
+  labels:
+    app: storage
+    name: sample-storage-pvc
+  annotations:
+    recurring-job-group.longhorn.io/default: enabled
+spec:
+  accessModes:
+    - ReadWriteOnce
+  storageClassName: longhorn
+  resources:
+    requests:
+      storage: 2Gi
+---
+
