@@ -7,8 +7,10 @@ package main
 // Both "fmt" and "net" are part of the Go standard library
 import (
 	// "fmt" has methods for formatted I/O operations (like printing to the console)
+	"bytes"
 	"fmt"
 	"os"
+	"strconv"
 
 	// The "net/http" library has methods to implement HTTP clients and servers
 	"net/http"
@@ -30,7 +32,8 @@ func main() {
 // as the arguments.
 func handler(w http.ResponseWriter, r *http.Request) {
 	// For this case, we will always pipe "Hello World" into the response writer
-	fmt.Fprintf(w, "Hello World!")
+	entry := readAndAppend("text.log")
+	fmt.Fprintf(w, "Hello World! => "+entry)
 }
 
 func readAndAppend(fileName string) string {
@@ -40,14 +43,40 @@ func readAndAppend(fileName string) string {
 	}
 
 	fileDescriptor, err := os.Stat(fileName)
-	lineBreakSize := int64(len([]byte("\n")))
+	lineBreak := []byte("\n")
+	lineBreakSize := int64(len(lineBreak))
 	curr := fileDescriptor.Size() - lineBreakSize
-
+	entry := 0
 	if curr > 0 {
 		lineBuf := make([]byte, lineBreakSize)
+
 		for {
-			n, _ := file.ReadAt(curr, buf[:n])
-			fmt.Println(lineBuf[:n])
+			n, _ := file.ReadAt(lineBuf, curr)
+
+			if bytes.Equal(lineBuf[:n], lineBreak) {
+				break
+			}
+
+			curr -= lineBreakSize
 		}
 	}
+
+	numberBuf := make([]byte, curr+lineBreakSize-fileDescriptor.Size())
+	_, err = file.ReadAt(numberBuf, curr+lineBreakSize)
+	if err != nil {
+		panic(err)
+	}
+
+	entry, err = strconv.Atoi(string(numberBuf))
+	if err != nil {
+		panic(err)
+	}
+
+	entry += 1
+
+	if _, err := file.WriteString(fmt.Sprintf("\n%d", entry)); err != nil {
+		panic(err)
+	}
+
+	return fmt.Sprintf("%d", entry)
 }
