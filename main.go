@@ -17,16 +17,15 @@ import (
 )
 
 func main() {
-	readAndAppend("text.log")
 	// The "HandleFunc" method accepts a path and a function as arguments
 	// (Yes, we can pass functions as arguments, and even treat them like variables in Go)
-	// // However, the handler function has to have the appropriate signature (as described by the "handler" function below)
-	// http.HandleFunc("/", handler)
+	// However, the handler function has to have the appropriate signature (as described by the "handler" function below)
+	http.HandleFunc("/", handler)
 
-	// // After defining our server, we finally "listen and serve" on port 8080
-	// // The second argument is the handler, which we will come to later on, but for now it is left as nil,
-	// // and the handler defined above (in "HandleFunc") is used
-	// http.ListenAndServe(":8080", nil)
+	// After defining our server, we finally "listen and serve" on port 8080
+	// The second argument is the handler, which we will come to later on, but for now it is left as nil,
+	// and the handler defined above (in "HandleFunc") is used
+	http.ListenAndServe(":8080", nil)
 }
 
 // "handler" is our handler function. It has to follow the function signature of a ResponseWriter and Request type
@@ -60,22 +59,17 @@ func readAndAppend(fileName string) string {
 
 			current -= lineBreakSize
 		}
-	}
 
-	numberBuf := make([]byte, current+lineBreakSize-fileDescriptor.Size())
-	_, err = file.ReadAt(numberBuf, current+lineBreakSize)
-	if err != nil {
-		panic(err)
-	}
+		numberBuf := make([]byte, fileDescriptor.Size()-current-lineBreakSize)
+		_, _ = file.ReadAt(numberBuf, current+lineBreakSize)
 
-	fmt.Println(numberBuf)
-	entry, err = strconv.Atoi(string(numberBuf))
-	if err != nil {
-		panic(err)
+		entry, err = strconv.Atoi(string(numberBuf))
+		if err != nil {
+			panic(err)
+		}
 	}
 
 	entry += 1
-
 	if _, err := file.WriteString(fmt.Sprintf("\n%d", entry)); err != nil {
 		panic(err)
 	}
