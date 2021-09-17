@@ -26,7 +26,7 @@ func main() {
 	// After defining our server, we finally "listen and serve" on port 8080
 	// The second argument is the handler, which we will come to later on, but for now it is left as nil,
 	// and the handler defined above (in "HandleFunc") is used
-	addr := "127.0.0.0"
+	addr := "0.0.0.0"
 	if runtime.GOOS == "darwin" {
 		addr = "localhost"
 	}
@@ -38,7 +38,7 @@ func main() {
 func handler(w http.ResponseWriter, r *http.Request) {
 	filePath := os.Getenv("FILE_PATH")
 	if len(filePath) == 0 {
-		filePath = "/tmp/test.txt"
+		filePath = "/data.log"
 	}
 
 	entry := readAndAppend(filePath)
