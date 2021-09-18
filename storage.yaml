@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
         - name: app
-          image: ghcr.io/yurifrl/demo-state-app:main
+          image: ghcr.io/yurifrl/demo-state-app:v1.0.0
           ports:
             - containerPort: 8080
           volumeMounts:
@@ -48,7 +48,7 @@ spec:
   ports:
     - protocol: TCP
       name: web
-      port: 80
+      port: 8080
   selector:
     app: demo
 ---
